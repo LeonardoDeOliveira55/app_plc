@@ -1,0 +1,54 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block content %}
+<h2>{{ tag.nombre }}</h2>
+<p>{{ tag.descripcion }}</p>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h3>Agregar nueva dirección</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">+</button>
+        </form>
+    </div>
+    
+    <div class="col-md-12 mt-4">
+        <h3>Direcciones</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tipo I/O</th>
+                    <th>Dirección ET</th>
+                    <th>Módulo</th>
+                    <th>Entrada</th>
+                    <th>Slot</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for direccion in direcciones %}
+                <tr>
+                    <td>{{ direccion.get_tipo_io_display }}</td>
+                    <td>{{ direccion.direccion_et }}</td>
+                    <td>{{ direccion.numero_modulo }}</td>
+                    <td>{{ direccion.numero_entrada }}</td>
+                    <td>{{ direccion.slot }}</td>
+                    <td>{{ direccion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <form method="post" action="{% url 'eliminar_direccion' tag.id direccion.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('¿Estás seguro de que deseas eliminar esta dirección?')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

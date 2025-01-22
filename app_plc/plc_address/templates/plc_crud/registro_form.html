@@ -1,0 +1,12 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block title %}Nuevo Registro{% endblock %}
+
+{% block content %}
+    <h1>Nuevo Registro</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Guardar">
+    </form>
+{% endblock %}

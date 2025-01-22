@@ -1,0 +1,28 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <a href="{% url 'registro_create' %}">Nuevo Registro</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tag</th>
+                <th>Descripción</th>
+                <th>Fecha de Creación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in registros %}
+                <tr>
+                    <td><a href="{% url 'registro_detail' registro.pk %}">{{ registro.nombre }}</a></td>
+                    <td>{{ registro.tag }}</td>
+                    <td>{{ registro.descripcion }}</td>
+                    <td>{{ registro.fecha_creacion }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

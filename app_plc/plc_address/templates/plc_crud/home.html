@@ -1,0 +1,185 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mis Tags</h2>
+    <a href="{% url 'tag_new' %}" class="btn btn-primary">Crear Nuevo Tag</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Buscar por nombre..."
+                       value="{{ search_query }}"
+                       aria-label="Buscar tags">
+                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                {% if search_query %}
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resultados de la búsqueda si hay término de búsqueda -->
+{% if search_query %}
+<div class="mb-4">
+    <p class="text-muted">
+        {% with total=tags.count %}
+            {% if total == 0 %}
+                No se encontraron tags con "{{ search_query }}"
+            {% elif total == 1 %}
+                Se encontró 1 tag con "{{ search_query }}"
+            {% else %}
+                Se encontraron {{ total }} tags con "{{ search_query }}"
+            {% endif %}
+        {% endwith %}
+    </p>
+</div>
+{% endif %}
+
+<div class="row">
+    {% for tag in tags %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100" style="min-height: 200px;">
+            <div class="card-body position-relative d-flex flex-column">
+                <!-- Controles superiores: X y menú -->
+                <div class="d-flex justify-content-between position-absolute w-100" style="top: 10px; left: 0; padding: 0 10px; z-index: 1;">
+                    <!-- Menú desplegable -->
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" type="button" id="dropdownMenuButton-{{ tag.pk }}" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ tag.pk }}">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'tag_detail' tag.pk %}">
+                                    <i class="fas fa-microchip me-2"></i> Editar I/O
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'tag_edit' tag.pk %}">
+                                    <i class="fas fa-edit me-2"></i> Editar Nombre
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Botón X para eliminar -->
+                    <form method="post" action="{% url 'tag_delete' tag.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm rounded-circle" 
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar este tag y todas sus direcciones?')"
+                                style="width: 32px; height: 32px; padding: 0;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Área clickeable para el modal -->
+                <div class="flex-grow-1 d-flex flex-column" style="margin-top: 2.5rem;" role="button" 
+                     data-bs-toggle="modal" data-bs-target="#tagModal{{ tag.pk }}" style="cursor: pointer;">
+                    <!-- Contenido del Tag -->
+                    <div>
+                        <h5 class="card-title mb-1 text-truncate">{{ tag.nombre }}</h5>
+                        <p class="card-text text-muted small mb-0" style="min-height: 40px; max-height: 60px; overflow: hidden;">
+                            {{ tag.descripcion|default:"Sin descripción" }}
+                        </p>
+                    </div>
+
+                    <!-- Estadísticas o información adicional -->
+                    <div class="mt-auto pt-3 border-top">
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span>
+                                <i class="fas fa-plug me-1"></i> 
+                                {{ tag.direcciones.count }} direcciones
+                            </span>
+                            <span>
+                                <i class="far fa-clock me-1"></i>
+                                {{ tag.fecha_creacion|date:"d/m/Y" }}
+                            </span>
+                            <span>
+                                <i class="fa fa-user me-1"></i>
+                                {{ tag.usuario }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cada tag -->
+    <div class="modal fade" id="tagModal{{ tag.pk }}" tabindex="-1" aria-labelledby="tagModalLabel{{ tag.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tagModalLabel{{ tag.pk }}">
+                        <i class="fas fa-tag me-2"></i>{{ tag.nombre }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if tag.direcciones.all %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tipo I/O</th>
+                                    <th>Dirección ET</th>
+                                    <th>Módulo</th>
+                                    <th>Entrada</th>
+                                    <th>Slot</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for direccion in tag.direcciones.all %}
+                                <tr>
+                                    <td>{{ direccion.get_tipo_io_display }}</td>
+                                    <td>{{ direccion.direccion_et }}</td>
+                                    <td>{{ direccion.numero_modulo }}</td>
+                                    <td>{{ direccion.numero_entrada }}</td>
+                                    <td>{{ direccion.slot }}</td>
+                                    <td>{{ direccion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted my-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Este tag aún no tiene direcciones registradas
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-center">
+            {% if search_query %}
+                No se encontraron tags que coincidan con tu búsqueda.
+            {% else %}
+                No hay tags creados aún. ¡Crea uno nuevo!
+            {% endif %}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
