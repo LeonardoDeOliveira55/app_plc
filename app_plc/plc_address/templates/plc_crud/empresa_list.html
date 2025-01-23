@@ -1,0 +1,31 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Empresas</h2>
+    <a href="{% url 'empresa_create' %}" class="btn btn-primary mb-3">Nueva Empresa</a>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empresa in empresas %}
+            <tr>
+                <td>{{ empresa.nombre }}</td>
+                <td>
+                    <a href="{% url 'empresa_edit' empresa.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form action="{% url 'empresa_delete' empresa.pk %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?')">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

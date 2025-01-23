@@ -1,0 +1,35 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Ubicaciones</h2>
+    <a href="{% url 'sector_create' %}" class="btn btn-primary mb-3">Nueva Ubicación</a>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Sector</th>
+                <th>Ubicación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sector in sectores %}
+            <tr>
+                <td>{{ sector.empresa }}</td>
+                <td>{{ sector.sector }}</td>
+                <td>{{ sector.ubicacion }}</td>
+                <td>
+                    <a href="{% url 'sector_edit' sector.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    <form action="{% url 'sector_delete' sector.pk %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?')">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 
 
 @login_required
@@ -140,3 +141,85 @@ def tag_delete(request, pk):
         return redirect('home')
 
     return redirect('home')
+
+
+def obtener_sectores(request, empresa_id):
+    sectores = list(Sector.objects.filter(empresa_id=empresa_id).values('id', 'sector', 'ubicacion'))
+    return JsonResponse(sectores, safe=False)
+
+
+@login_required
+def empresa_list(request):
+    empresas = Empresa.objects.all()
+    return render(request, 'plc_crud/empresa_list.html', {'empresas': empresas})
+
+@login_required
+def empresa_create(request):
+    if request.method == "POST":
+        form = EmpresaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Empresa creada exitosamente!')
+            return redirect('empresa_list')
+    else:
+        form = EmpresaForm()
+    return render(request, 'plc_crud/empresa_form.html', {'form': form})
+
+@login_required
+def empresa_edit(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    if request.method == "POST":
+        form = EmpresaForm(request.POST, instance=empresa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Empresa actualizada exitosamente!')
+            return redirect('empresa_list')
+    else:
+        form = EmpresaForm(instance=empresa)
+    return render(request, 'plc_crud/empresa_form.html', {'form': form, 'empresa': empresa})
+
+@login_required
+def empresa_delete(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    if request.method == "POST":
+        empresa.delete()
+        messages.success(request, 'Empresa eliminada exitosamente!')
+    return redirect('empresa_list')
+
+@login_required
+def sector_list(request):
+    sectores = Sector.objects.all()
+    return render(request, 'plc_crud/sector_list.html', {'sectores': sectores})
+
+@login_required
+def sector_create(request):
+    if request.method == "POST":
+        form = SectorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ubicación creada exitosamente!')
+            return redirect('sector_list')
+    else:
+        form = SectorForm()
+    return render(request, 'plc_crud/sector_form.html', {'form': form})
+
+@login_required
+def sector_edit(request, pk):
+    sector = get_object_or_404(Sector, pk=pk)
+    if request.method == "POST":
+        form = SectorForm(request.POST, instance=sector)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ubicación actualizada exitosamente!')
+            return redirect('sector_list')
+    else:
+        form = SectorForm(instance=sector)
+    return render(request, 'plc_crud/sector_form.html', {'form': form, 'sector': sector})
+
+@login_required
+def sector_delete(request, pk):
+    sector = get_object_or_404(Sector, pk=pk)
+    if request.method == "POST":
+        sector.delete()
+        messages.success(request, 'Ubicación eliminada exitosamente!')
+    return redirect('sector_list')

@@ -39,4 +39,21 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector('select[name="empresa"]').addEventListener('change', function() {
+        let empresa_id = this.value;
+        let ubicacion_select = document.querySelector('select[name="ubicacion"]');
+        ubicacion_select.innerHTML = '';
+        
+        fetch(`/obtener-sectores/${empresa_id}/`)
+            .then(response => response.json())
+            .then(sectores => {
+                sectores.forEach(sector => {
+                    let option = new Option(sector.sector + ' - ' + sector.ubicacion, sector.id);
+                    ubicacion_select.add(option);
+                });
+            });
+    });
+    </script>
+
 {% endblock %}

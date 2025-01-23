@@ -1,0 +1,13 @@
+{% extends 'plc_crud/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if empresa %}Editar{% else %}Nueva{% endif %} Empresa</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'empresa_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -20,21 +20,27 @@
             <thead>
                 <tr>
                     <th>Tipo I/O</th>
-                    <th>Dirección ET</th>
-                    <th>Módulo</th>
-                    <th>Entrada</th>
+                    <th>Dirección PLC</th>
                     <th>Slot</th>
+                    <th>Bastidor</th>
+                    <th>Direccion</th>
+                    <th>Modulo</th>
+                    <th>E/S</th>
                     <th>Fecha</th>
+                    <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
                 {% for direccion in direcciones %}
                 <tr>
                     <td>{{ direccion.get_tipo_io_display }}</td>
-                    <td>{{ direccion.direccion_et }}</td>
+                    <td>{{ direccion.direccion_plc }}</td>
+                    <td>{{ direccion.slot }}</td>
+                    <td>{{ direccion.bastidor }}</td>
+                    <td>{{ direccion.direccion }}</td>
                     <td>{{ direccion.numero_modulo }}</td>
                     <td>{{ direccion.numero_entrada }}</td>
-                    <td>{{ direccion.slot }}</td>
+                    
                     <td>{{ direccion.fecha_creacion|date:"d/m/Y H:i" }}</td>
                     <td>
                         <form method="post" action="{% url 'eliminar_direccion' tag.id direccion.id %}" style="display: inline;">
