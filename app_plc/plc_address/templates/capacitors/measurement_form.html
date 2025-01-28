@@ -1,0 +1,65 @@
+{% extends 'capacitors/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Mediciones - {{ location.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for data in contactor_data %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Contactor {{ data.contactor.number }}</h5>
+                <p class="mb-0">Corriente nominal esperada: {{ data.expected_current|floatformat:2 }}A</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Corriente Fase R (A)</label>
+                            <input type="number" 
+                                   step="0.01" 
+                                   name="current_r_{{ data.contactor.id }}"
+                                   class="form-control" 
+                                   required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Corriente Fase S (A)</label>
+                            <input type="number" 
+                                   step="0.01" 
+                                   name="current_s_{{ data.contactor.id }}"
+                                   class="form-control" 
+                                   required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Corriente Fase T (A)</label>
+                            <input type="number" 
+                                   step="0.01" 
+                                   name="current_t_{{ data.contactor.id }}"
+                                   class="form-control" 
+                                   required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Observaciones</label>
+                            <textarea name="notes_{{ data.contactor.id }}"
+                                      class="form-control"
+                                      rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Guardar Mediciones</button>
+        <a href="{% url 'location-detail' location.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

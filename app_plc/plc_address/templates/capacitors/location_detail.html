@@ -1,0 +1,135 @@
+{% extends 'capacitors/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>{{ location.name }}</h2>
+            {% if location.description %}
+                <p>{{ location.description }}</p>
+            {% endif %}
+        </div>
+        <div class="col text-end">
+            {% if location.is_configured %}
+                <a href="{% url 'measurement-form' location.id %}" class="btn btn-primary">Nueva Medición</a>
+                <a href="{% url 'measurement-history' location.id %}" class="btn btn-info">Ver Historial</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Estado de Contactores</h3>
+                </div>
+                <div class="card-body">
+                    {% for contactor in contactors %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Contactor {{ contactor.number }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Configuración de capacitores -->
+                            <h5>Capacitores Instalados</h5>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Capacitor</th>
+                                            <th>KVAR</th>
+                                            <th>Voltaje</th>
+                                            <th>Amperaje Nominal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for capacitor in contactor.capacitors.all %}
+                                        <tr>
+                                            <td>{{ capacitor.number }}</td>
+                                            <td>{{ capacitor.kvar_value.kvar }}</td>
+                                            <td>{{ capacitor.kvar_value.voltage }}V</td>
+                                            <td>{{ capacitor.kvar_value.amperage }}A</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Última medición -->
+                            {% if contactor.last_measurement %}
+                            <h5>Última Medición</h5>
+                            <p>Fecha: {{ contactor.last_measurement.measurement_date|date:"d/m/Y H:i" }}</p>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Fase</th>
+                                            <th>Corriente Esperada</th>
+                                            <th>Corriente Medida</th>
+                                            <th>Desviación</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>R</td>
+                                            <td>{{ contactor.expected_current|floatformat:2 }}A</td>
+                                            <td>{{ contactor.last_measurement.current_r|floatformat:2 }}A</td>
+                                            <td>{{ contactor.deviation_r|floatformat:1 }}%</td>
+                                            <td>
+                                                <span class="badge bg-{% if contactor.deviation_r > 10 or contactor.deviation_r < -10 %}danger{% else %}success{% endif %}">
+                                                    {% if contactor.deviation_r > 10 %}Alta corriente
+                                                    {% elif contactor.deviation_r < -10 %}Baja corriente
+                                                    {% else %}Normal{% endif %}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>S</td>
+                                            <td>{{ contactor.expected_current|floatformat:2 }}A</td>
+                                            <td>{{ contactor.last_measurement.current_s|floatformat:2 }}A</td>
+                                            <td>{{ contactor.deviation_s|floatformat:1 }}%</td>
+                                            <td>
+                                                <span class="badge bg-{% if contactor.deviation_s > 10 or contactor.deviation_s < -10 %}danger{% else %}success{% endif %}">
+                                                    {% if contactor.deviation_s > 10 %}Alta corriente
+                                                    {% elif contactor.deviation_s < -10 %}Baja corriente
+                                                    {% else %}Normal{% endif %}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>T</td>
+                                            <td>{{ contactor.expected_current|floatformat:2 }}A</td>
+                                            <td>{{ contactor.last_measurement.current_t|floatformat:2 }}A</td>
+                                            <td>{{ contactor.deviation_t|floatformat:1 }}%</td>
+                                            <td>
+                                                <span class="badge bg-{% if contactor.deviation_t > 10 or contactor.deviation_t < -10 %}danger{% else %}success{% endif %}">
+                                                    {% if contactor.deviation_t > 10 %}Alta corriente
+                                                    {% elif contactor.deviation_t < -10 %}Baja corriente
+                                                    {% else %}Normal{% endif %}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if contactor.last_measurement.notes %}
+                            <div class="mt-3">
+                                <h6>Observaciones:</h6>
+                                <p>{{ contactor.last_measurement.notes }}</p>
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <div class="alert alert-info">
+                                No hay mediciones registradas para este contactor.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

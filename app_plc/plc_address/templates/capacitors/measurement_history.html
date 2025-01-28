@@ -1,0 +1,76 @@
+{% extends 'capacitors/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Historial de Mediciones - {{ location.name }}</h2>
+        </div>
+        <div class="col text-end">
+            <a href="{% url 'measurement-form' location.id %}" class="btn btn-primary">Nueva Medición</a>
+            <a href="{% url 'location-list' %}" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+
+    {% if measurements_by_date %}
+        {% for date, measurements in measurements_by_date.items %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ date|date:"l d/m/Y" }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Contactor</th>
+                                <th>Hora</th>
+                                <th>Corriente Esperada</th>
+                                <th>Fase R (A)</th>
+                                <th>Fase S (A)</th>
+                                <th>Fase T (A)</th>
+                                <th>Desequilibrio</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meas in measurements %}
+                            <tr>
+                                <td>{{ meas.measurement.contactor.number }}</td>
+                                <td>{{ meas.measurement.measurement_date|date:"H:i" }}</td>
+                                <td>{{ meas.expected_current|floatformat:2 }}A</td>
+                                <td class="{% if meas.deviation_r > 10 or meas.deviation_r < -10 %}text-danger{% else %}text-success{% endif %}">
+                                    {{ meas.measurement.current_r|floatformat:2 }} 
+                                    ({{ meas.deviation_r|floatformat:1 }}%)
+                                </td>
+                                <td class="{% if meas.deviation_s > 10 or meas.deviation_s < -10 %}text-danger{% else %}text-success{% endif %}">
+                                    {{ meas.measurement.current_s|floatformat:2 }}
+                                    ({{ meas.deviation_s|floatformat:1 }}%)
+                                </td>
+                                <td class="{% if meas.deviation_t > 10 or meas.deviation_t < -10 %}text-danger{% else %}text-success{% endif %}">
+                                    {{ meas.measurement.current_t|floatformat:2 }}
+                                    ({{ meas.deviation_t|floatformat:1 }}%)
+                                </td>
+                                <td>{{ meas.phase_unbalance|floatformat:1 }}%</td>
+                                <td>
+                                    <span class="badge bg-{{ meas.unbalance_status }}">
+                                        {% if meas.phase_unbalance <= 10 %}Normal{% else %}Desequilibrio{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ meas.measurement.notes|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            No hay mediciones registradas para esta ubicación.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

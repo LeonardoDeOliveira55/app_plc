@@ -1,0 +1,42 @@
+{% extends 'capacitors/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Configurar Capacitores - {{ location.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for contactor in contactors %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Contactor {{ contactor.number }}</h5>
+            </div>
+            <div class="card-body">
+                {% with form=forms|get_item:contactor.id %}
+                <div class="form-group">
+                    <label for="kvar_values_{{ contactor.id }}">{{ form.kvar_values.label }}</label>
+                    <select name="kvar_values_{{ contactor.id }}" 
+                            class="form-control" 
+                            multiple 
+                            size="4"
+                            id="kvar_values_{{ contactor.id }}">
+                        {% for value, text in form.fields.kvar_values.choices %}
+                            <option value="{{ value }}">{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.kvar_values.help_text %}
+                    <small class="form-text text-muted">{{ form.kvar_values.help_text }}</small>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            <a href="{% url 'location-list' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
